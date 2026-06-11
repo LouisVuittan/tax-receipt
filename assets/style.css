@@ -1,0 +1,246 @@
+/* ============================================================
+   취득세 계산기 — 레트로 영수증 테마
+   종이 영수증(thermal receipt) 출력물 느낌. 고정폭 한글 폰트 + 절취선 + 점선 리더 + 도장
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic+Coding:wght@400;700&display=swap');
+
+:root {
+  --paper: #fbfaf3;     /* 영수증 종이 */
+  --counter: #b8b2a4;   /* 책상/카운터 바탕 */
+  --counter-2: #a8a294;
+  --ink: #2b2824;       /* 인쇄 잉크(완전 검정 아님) */
+  --faint: #8d877b;     /* 흐린 잉크 */
+  --stamp: #b3402f;     /* 도장 빨강 */
+  --line: #c9c3b5;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: 'Nanum Gothic Coding', 'D2Coding', 'Courier New', monospace;
+  color: var(--ink);
+  background:
+    radial-gradient(120% 80% at 50% -10%, var(--counter) 0%, var(--counter-2) 100%);
+  background-attachment: fixed;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  /* 한글은 어절(띄어쓰기) 단위로만 줄바꿈 — 단어 중간에서 끊기지 않게.
+     긴 숫자/URL 등 끊을 곳 없는 토큰만 예외적으로 줄바꿈 */
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+.wrap { max-width: 460px; margin: 0 auto; padding: 28px 14px 48px; }
+
+/* ---------- 계산기 네비게이션 (영수증 탭) ---------- */
+.calc-nav { display: flex; gap: 6px; margin: 0 0 18px; }
+.calc-nav a {
+  flex: 1; text-align: center; text-decoration: none;
+  font-family: inherit; font-size: 13px; font-weight: 700; letter-spacing: 1px;
+  padding: 10px 2px; color: var(--ink);
+  background: rgba(255,255,255,.35); border: 2px dashed var(--ink);
+}
+.calc-nav a.active { background: var(--ink); color: var(--paper); border-style: solid; }
+
+/* ---------- 영수증 종이 ---------- */
+.receipt {
+  position: relative;
+  background: var(--paper);
+  /* 미세한 종이 결 */
+  background-image:
+    repeating-linear-gradient(0deg, rgba(0,0,0,.012) 0 1px, transparent 1px 3px);
+  padding: 22px 22px 26px;
+  box-shadow: 0 10px 28px rgba(0,0,0,.28);
+  margin: 0 0 22px;
+}
+/* 위/아래 톱니 절취선 (종이 색 삼각형이 카운터 위로 솟음/내려옴) */
+.receipt::before,
+.receipt::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0;
+  height: 11px;
+  background-repeat: repeat-x;
+  background-size: 16px 11px;
+}
+.receipt::before {
+  top: -11px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='11'%3E%3Cpolygon points='0,11 16,11 8,0' fill='%23fbfaf3'/%3E%3C/svg%3E");
+}
+.receipt::after {
+  bottom: -11px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='11'%3E%3Cpolygon points='0,0 16,0 8,11' fill='%23fbfaf3'/%3E%3C/svg%3E");
+}
+
+/* ---------- 헤더 ---------- */
+.r-head { text-align: center; }
+.r-brand {
+  display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: 4px;
+  padding: 3px 12px; border: 1.5px solid var(--ink); margin-bottom: 10px;
+}
+.r-store {
+  font-size: 22px; font-weight: 700; letter-spacing: 6px;
+  margin: 2px 0;
+}
+.r-sub { font-size: 12px; color: var(--faint); letter-spacing: 1px; }
+.r-meta { font-size: 11px; color: var(--faint); letter-spacing: 1px; margin-top: 6px; }
+
+/* ---------- 구분선 ---------- */
+.div-dash { border-top: 1px dashed var(--ink); opacity: .45; margin: 14px 0; }
+.rule-double { border-top: 3px double var(--ink); margin: 12px 0; }
+
+/* ---------- 입력 필드 ---------- */
+.field { margin: 12px 0; }
+.field > label {
+  display: block; font-size: 13px; font-weight: 700; margin-bottom: 4px;
+}
+.field .hint { color: var(--faint); font-weight: 400; font-size: 11px; }
+input[type="text"], select {
+  width: 100%;
+  font-family: inherit;
+  font-size: 16px;            /* 모바일 확대 방지 */
+  color: var(--ink);
+  background: transparent;
+  border: none;
+  border-bottom: 2px dashed var(--faint);
+  border-radius: 0;
+  padding: 8px 2px;
+  -webkit-appearance: none; appearance: none;
+}
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M0 0l6 8 6-8z' fill='%232b2824'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 4px center;
+}
+input:focus, select:focus { outline: none; border-bottom-style: solid; border-bottom-color: var(--ink); }
+.priceKorean { color: var(--stamp); font-size: 12px; margin-top: 4px; min-height: 16px; }
+.row { display: flex; gap: 14px; }
+.row .field { flex: 1; }
+
+/* ---------- 커스텀 체크박스 [ ] / [x] ---------- */
+.checks { margin-top: 8px; }
+.check {
+  display: flex; align-items: flex-start; gap: 8px;
+  padding: 7px 0; cursor: pointer; font-size: 13px;
+}
+.check input { position: absolute; opacity: 0; width: 0; height: 0; }
+.check .box { font-weight: 700; }
+.check .box::before { content: "[ ]"; white-space: pre; }
+.check input:checked + .box::before { content: "[x]"; color: var(--stamp); }
+.check input:focus-visible + .box { outline: 2px solid var(--stamp); }
+.check .lbl { flex: 1; }
+
+/* ---------- 버튼 ---------- */
+.btnrow { display: flex; gap: 10px; margin-top: 18px; }
+.btn {
+  flex: 1; font-family: inherit; font-size: 14px; font-weight: 700;
+  letter-spacing: 3px; padding: 13px 8px; cursor: pointer;
+  background: var(--paper); color: var(--ink);
+  border: 2px dashed var(--ink); border-radius: 0;
+}
+.btn:active { transform: translateY(1px); }
+.btn.primary { background: var(--ink); color: var(--paper); border-style: solid; }
+
+/* ---------- 영수증(결과) 줄 ---------- */
+.line { display: flex; align-items: flex-end; font-size: 14px; margin: 7px 0; }
+.line .name { white-space: nowrap; }
+.line .dots {
+  flex: 1; border-bottom: 2px dotted var(--faint);
+  margin: 0 6px 5px; height: 0;
+}
+.line .num { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.line.reduce .name, .line.reduce .num { color: var(--stamp); }
+.line.grand { font-size: 17px; font-weight: 700; }
+
+.total-banner { text-align: center; margin: 6px 0 4px; }
+.total-banner .total-label { font-size: 12px; color: var(--faint); letter-spacing: 2px; }
+.total-banner .total { font-size: 30px; font-weight: 700; letter-spacing: 1px; }
+
+.notes { list-style: none; padding: 0; margin: 14px 0 0; font-size: 12px; color: var(--faint); }
+.notes li { padding-left: 14px; position: relative; margin: 3px 0; }
+.notes li::before { content: "›"; position: absolute; left: 2px; }
+
+/* ---------- 도장 ---------- */
+.stamp-wrap { text-align: center; margin: 18px 0 8px; }
+.stamp {
+  display: inline-block; transform: rotate(-7deg);
+  color: var(--stamp); border: 2.5px solid var(--stamp); border-radius: 8px;
+  padding: 5px 14px; font-weight: 700; letter-spacing: 2px; font-size: 13px;
+  opacity: .8; box-shadow: inset 0 0 0 1px rgba(179,64,47,.25);
+}
+
+/* ---------- 바코드 ---------- */
+.barcode {
+  height: 46px; margin: 14px 0 4px;
+  background: repeating-linear-gradient(90deg,
+    var(--ink) 0 2px, transparent 2px 4px,
+    var(--ink) 4px 7px, transparent 7px 8px,
+    var(--ink) 8px 9px, transparent 9px 12px,
+    var(--ink) 12px 15px, transparent 15px 16px);
+}
+.r-code { text-align: center; font-size: 12px; letter-spacing: 3px; color: var(--ink); }
+
+/* ---------- 광고 ---------- */
+.adslot {
+  min-height: 90px; margin: 0 0 22px;
+  border: 2px dashed var(--counter-2); background: rgba(255,255,255,.35);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--faint); font-size: 12px; letter-spacing: 2px;
+}
+
+/* ---------- 면책 ---------- */
+.disclaimer {
+  font-size: 12px; color: var(--ink);
+  border: 2px solid var(--stamp); background: rgba(179,64,47,.06);
+  padding: 12px 14px; margin: 0 0 22px;
+}
+.disclaimer b { color: var(--stamp); }
+
+/* ---------- 해설 콘텐츠 (가독성 우선, 영수증 모티프만 유지) ---------- */
+.content { background: var(--paper); box-shadow: 0 10px 28px rgba(0,0,0,.28); padding: 22px; position: relative; }
+.content::before, .content::after {
+  content: ""; position: absolute; left: 0; right: 0; height: 11px; background-repeat: repeat-x; background-size: 16px 11px;
+}
+.content::before { top: -11px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='11'%3E%3Cpolygon points='0,11 16,11 8,0' fill='%23fbfaf3'/%3E%3C/svg%3E"); }
+.content::after { bottom: -11px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='11'%3E%3Cpolygon points='0,0 16,0 8,11' fill='%23fbfaf3'/%3E%3C/svg%3E"); }
+.content h2 {
+  font-size: 16px; letter-spacing: 1px; text-align: center;
+  border-top: 1px dashed var(--ink); border-bottom: 1px dashed var(--ink);
+  padding: 8px 0; margin: 26px 0 14px; opacity: .95;
+}
+.content h2:first-child { margin-top: 4px; }
+.content h3 { font-size: 14px; margin: 16px 0 6px; }
+.content p, .content li { font-size: 13px; line-height: 1.8; }
+.content ul { padding-left: 18px; }
+/* 예시 괄호는 한 덩어리로 다음 줄에 내림 (중간에서 끊기지 않게) */
+.content .eg { display: block; color: var(--faint); font-size: 12px; }
+.content table { width: 100%; border-collapse: collapse; font-size: 12px; margin: 10px 0; }
+.content th, .content td { border: 1px dashed var(--faint); padding: 6px 8px; text-align: left; }
+.content th { background: rgba(0,0,0,.04); }
+.content details { border-bottom: 1px dashed var(--faint); padding: 8px 0; }
+.content summary { font-weight: 700; cursor: pointer; font-size: 13px; }
+.content details p { margin: 8px 0 2px; }
+.sources { font-size: 11px; color: var(--faint); line-height: 1.7; }
+.content a { color: var(--stamp); text-decoration: underline; text-underline-offset: 2px; }
+
+/* ---------- 글(세금꿀팁) 페이지 ---------- */
+.content h1.a-title { font-size: 19px; letter-spacing: 1px; text-align: center; margin: 4px 0 6px; line-height: 1.5; }
+.a-meta { text-align: center; font-size: 11px; color: var(--faint); letter-spacing: 1px; margin-bottom: 18px; }
+.tip-list { list-style: none; padding: 0; margin: 0; }
+.tip-list li { border-bottom: 1px dashed var(--faint); padding: 12px 0; }
+.tip-list a { font-size: 14px; font-weight: 700; color: var(--ink); text-decoration: none; }
+.tip-list a:hover { color: var(--stamp); }
+.tip-list .tip-desc { font-size: 12px; color: var(--faint); margin: 4px 0 0; }
+
+/* ---------- 허브(홈) 계산기 카드 ---------- */
+.calc-cards { display: grid; gap: 14px; margin: 14px 0; }
+.calc-card {
+  display: block; text-decoration: none; color: var(--ink);
+  border: 2px dashed var(--ink); padding: 14px 16px; background: rgba(255,255,255,.4);
+}
+.calc-card:hover { background: var(--ink); color: var(--paper); }
+.calc-card .cc-title { font-size: 15px; font-weight: 700; letter-spacing: 2px; }
+.calc-card .cc-desc { font-size: 12px; margin-top: 4px; opacity: .75; }
+
+footer { color: var(--counter-2); font-size: 11px; text-align: center; padding: 24px 0 8px; letter-spacing: 1px; }
+footer .receipt-footer { color: rgba(43,40,36,.55); }

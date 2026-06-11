@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="robots" content="noindex" />
+  <title>취득세 엔진 골든 테스트</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 900px; margin: 24px auto; padding: 0 16px; }
+    h1 { font-size: 20px; }
+    table { border-collapse: collapse; width: 100%; font-size: 14px; }
+    th, td { border: 1px solid #ddd; padding: 6px 8px; text-align: right; }
+    th:first-child, td:first-child { text-align: left; }
+    .pass { color: #0a7d28; font-weight: 700; }
+    .fail { color: #c01818; font-weight: 700; }
+    #summary { font-size: 18px; margin: 12px 0; }
+    .note { color: #666; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <h1>취득세 계산 엔진 — 골든 테스트</h1>
+  <p class="note">
+    ⚠️ 이 테스트는 <b>엔진이 정의된 규칙대로 일관되게 계산하는지</b>를 잠근다.
+    기대값 자체의 법적 정확성은 <b>위택스·행안부 고시로 별도 교차검증</b> 후
+    이 표를 확정하고 <code>rules-2026.js</code>의 <code>verifiedAt</code>를 채울 것.
+  </p>
+  <div id="summary">실행 중…</div>
+  <table id="results">
+    <thead>
+      <tr><th>시나리오</th><th>항목</th><th>기대</th><th>실제</th><th>판정</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script src="js/rules-2026.js"></script>
+  <script src="js/acquisition-tax.js"></script>
+  <script>
+    // 검증 케이스: { name, input, expect:{acquisitionTax, localEduTax, ruralTax, total} }
+    var cases = [
+      { name: 'A. 1주택 5억·84㎡(일반)',
+        input: { price: 500000000, area: 84, houseCount: 1 },
+        expect: { acquisitionTax: 5000000, localEduTax: 500000, ruralTax: 0, total: 5500000 } },
+
+      { name: 'B. 1주택 7억·100㎡(6~9억 누진, 85㎡ 초과)',
+        input: { price: 700000000, area: 100, houseCount: 1 },
+        expect: { acquisitionTax: 11690000, localEduTax: 1169000, ruralTax: 1400000, total: 14259000 } },
+
+      { name: 'C. 생애최초 3억·59㎡(부분감면)',
+        input: { price: 300000000, area: 59, houseCount: 1, isFirstHome: true },
+        expect: { acquisitionTax: 1000000, localEduTax: 300000, ruralTax: 0, total: 1300000 } },
+
+      { name: 'D. 생애최초 1.5억·40㎡(전액면제)',
+        input: { price: 150000000, area: 40, houseCount: 1, isFirstHome: true },
+        expect: { acquisitionTax: 0, localEduTax: 150000, ruralTax: 0, total: 150000 } },
+
+      { name: 'E. 조정 2주택 5억·100㎡(8% 중과)',
+        input: { price: 500000000, area: 100, houseCount: 2, isAdjustedArea: true },
+        expect: { acquisitionTax: 40000000, localEduTax: 2000000, ruralTax: 3000000, total: 45000000 } },
+
+      { name: 'F. 일시적 2주택 5억·84㎡(중과 제외)',
+        input: { price: 500000000, area: 84, houseCount: 2, isAdjustedArea: true, isTemporaryTwoHouse: true },
+        expect: { acquisitionTax: 5000000, localEduTax: 500000, ruralTax: 0, total: 5500000 } },
+
+      { name: 'G. 인구감소지역 생애최초 3.5억·84㎡(300만 한도)',
+        input: { price: 350000000, area: 84, houseCount: 1, isFirstHome: true, isPopDecreaseArea: true },
+        expect: { acquisitionTax: 500000, localEduTax: 350000, ruralTax: 0, total: 850000 } },
+
+      { name: 'H. 조정 3주택 6억·100㎡(12% 중과)',
+        input: { price: 600000000, area: 100, houseCount: 3, isAdjustedArea: true },
+        expect: { acquisitionTax: 72000000, localEduTax: 2400000, ruralTax: 6000000, total: 80400000 } },
+
+      { name: 'I. 생애최초+조정+2주택 5억·84㎡(중과 가드→표준세율·200만 감면)',
+        input: { price: 500000000, area: 84, houseCount: 2, isAdjustedArea: true, isFirstHome: true },
+        expect: { acquisitionTax: 3000000, localEduTax: 500000, ruralTax: 0, total: 3500000 } },
+    ];
+
+    var tbody = document.querySelector('#results tbody');
+    var pass = 0, fail = 0;
+    var fields = ['acquisitionTax', 'localEduTax', 'ruralTax', 'total'];
+    var labels = { acquisitionTax: '취득세', localEduTax: '지방교육세', ruralTax: '농특세', total: '합계' };
+
+    cases.forEach(function (c) {
+      var r = window.AcqTax.calcAcquisitionTax(c.input);
+      fields.forEach(function (f, i) {
+        var exp = c.expect[f];
+        var act = r.ok ? r[f] : 'ERR';
+        var ok = act === exp;
+        ok ? pass++ : fail++;
+        var tr = document.createElement('tr');
+        tr.innerHTML =
+          '<td>' + (i === 0 ? c.name : '') + '</td>' +
+          '<td>' + labels[f] + '</td>' +
+          '<td>' + exp.toLocaleString() + '</td>' +
+          '<td>' + (typeof act === 'number' ? act.toLocaleString() : act) + '</td>' +
+          '<td class="' + (ok ? 'pass' : 'fail') + '">' + (ok ? 'PASS' : 'FAIL') + '</td>';
+        tbody.appendChild(tr);
+      });
+    });
+
+    var s = document.getElementById('summary');
+    s.textContent = '결과: ' + pass + ' PASS / ' + fail + ' FAIL';
+    s.className = fail === 0 ? 'pass' : 'fail';
+  </script>
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="robots" content="noindex" />
+  <title>재산세 엔진 골든 테스트</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 960px; margin: 24px auto; padding: 0 16px; }
+    h1 { font-size: 20px; }
+    table { border-collapse: collapse; width: 100%; font-size: 14px; }
+    th, td { border: 1px solid #ddd; padding: 6px 8px; text-align: right; }
+    th:first-child, td:first-child { text-align: left; }
+    .pass { color: #0a7d28; font-weight: 700; }
+    .fail { color: #c01818; font-weight: 700; }
+    #summary { font-size: 18px; margin: 12px 0; }
+    .note { color: #666; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <h1>주택분 재산세 계산 엔진 — 골든 테스트</h1>
+  <p class="note">
+    ⚠️ 이 테스트는 <b>엔진이 정의된 규칙대로 일관되게 계산하는지</b>를 잠근다.
+    기대값은 지방세법 제111조·제111조의2 세율표(서초구청·행안부 안내 대조)로 수계산함.
+  </p>
+  <div id="summary">실행 중…</div>
+  <table id="results">
+    <thead>
+      <tr><th>시나리오</th><th>항목</th><th>기대</th><th>실제</th><th>판정</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script src="js/rules-jaesan-2026.js"></script>
+  <script src="js/jaesan-tax.js"></script>
+  <script>
+    var cases = [
+      // 과표 = 공시 × 비율 / 본세는 누진표 / 도시지역분 = 과표×0.14% / 교육세 = 본세×20%
+      { name: 'A. 공시 3억 · 1주택 · 도시 (비율 43%, 특례세율)',
+        input: { price: 300000000, isOneHouse: true, isUrban: true },
+        expect: { taxBase: 129000000, mainTax: 99000, urbanTax: 180600, eduTax: 19800, total: 299400 } },
+
+      { name: 'B. 공시 5억 · 1주택 · 도시 (비율 44%, 특례세율)',
+        input: { price: 500000000, isOneHouse: true, isUrban: true },
+        expect: { taxBase: 220000000, mainTax: 260000, urbanTax: 308000, eduTax: 52000, total: 620000 } },
+
+      { name: 'C. 공시 9억 경계 · 1주택 · 도시 (비율 45%, 특례세율 적용 상한)',
+        input: { price: 900000000, isOneHouse: true, isUrban: true },
+        expect: { taxBase: 405000000, mainTax: 637500, urbanTax: 567000, eduTax: 127500, total: 1332000 } },
+
+      { name: 'D. 공시 12억 · 1주택 · 도시 (9억 초과 → 표준세율, 비율 45%)',
+        input: { price: 1200000000, isOneHouse: true, isUrban: true },
+        expect: { taxBase: 540000000, mainTax: 1530000, urbanTax: 756000, eduTax: 306000, total: 2592000 } },
+
+      { name: 'E. 공시 5억 · 다주택 · 도시 (비율 60%, 표준세율)',
+        input: { price: 500000000, isOneHouse: false, isUrban: true },
+        expect: { taxBase: 300000000, mainTax: 570000, urbanTax: 420000, eduTax: 114000, total: 1104000 } },
+
+      { name: 'F. 공시 1억 · 1주택 · 비도시 (본세 20만 이하 → 7월 일괄)',
+        input: { price: 100000000, isOneHouse: true, isUrban: false },
+        expect: { taxBase: 43000000, mainTax: 21500, urbanTax: 0, eduTax: 4300, total: 25800 } },
+
+      { name: 'G. 공시 20억 · 다주택 · 도시 (고액 구간)',
+        input: { price: 2000000000, isOneHouse: false, isUrban: true },
+        expect: { taxBase: 1200000000, mainTax: 4170000, urbanTax: 1680000, eduTax: 834000, total: 6684000 } },
+
+      { name: 'H. 공시 6억 경계 · 1주택 · 도시 (비율 44% 상한)',
+        input: { price: 600000000, isOneHouse: true, isUrban: true },
+        expect: { taxBase: 264000000, mainTax: 348000, urbanTax: 369600, eduTax: 69600, total: 787200 } },
+    ];
+
+    var tbody = document.querySelector('#results tbody');
+    var pass = 0, fail = 0;
+
+    cases.forEach(function (c) {
+      var r = window.Jaesan.calcJaesanTax(c.input);
+      var fields = Object.keys(c.expect);
+      fields.forEach(function (f, i) {
+        var exp = c.expect[f];
+        var act = r.ok ? r[f] : 'ERR';
+        var ok = act === exp;
+        ok ? pass++ : fail++;
+        var tr = document.createElement('tr');
+        tr.innerHTML =
+          '<td>' + (i === 0 ? c.name : '') + '</td>' +
+          '<td>' + f + '</td>' +
+          '<td>' + exp.toLocaleString() + '</td>' +
+          '<td>' + (typeof act === 'number' ? act.toLocaleString() : act) + '</td>' +
+          '<td class="' + (ok ? 'pass' : 'fail') + '">' + (ok ? 'PASS' : 'FAIL') + '</td>';
+        tbody.appendChild(tr);
+      });
+    });
+
+    var s = document.getElementById('summary');
+    s.textContent = '결과: ' + pass + ' PASS / ' + fail + ' FAIL';
+    s.className = fail === 0 ? 'pass' : 'fail';
+  </script>
+</body>
+</html>

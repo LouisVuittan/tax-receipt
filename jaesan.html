@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>재산세 계산기 2026 (1주택 특례세율·보유세) | 세금영수증</title>
+  <meta name="description" content="2026년 주택 재산세 계산기. 공시가격만 입력하면 공정시장가액비율(1주택 43~45%)·1세대1주택 특례세율·도시지역분·지방교육세까지 반영해 7월·9월 납부액을 한 번에 계산합니다. 계산 과정과 근거까지 투명 공개." />
+  <link rel="canonical" href="https://tax-receipt.pages.dev/jaesan.html" />
+  <meta property="og:title" content="재산세 계산기 2026 (1주택 특례세율·보유세)" />
+  <meta property="og:description" content="공시가격으로 1분 만에 계산하는 2026 주택 재산세 — 1주택 특례·도시지역분·지방교육세 반영." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://tax-receipt.pages.dev/jaesan.html" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#129534;</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+  <div class="wrap">
+
+    <nav class="calc-nav" aria-label="계산기 메뉴">
+      <a href="index.html">홈</a>
+      <a href="chwideuk.html">취득세</a>
+      <a href="yangdo.html">양도세</a>
+      <a href="jaesan.html" class="active" aria-current="page">재산세</a>
+      <a href="tips.html">세금꿀팁</a>
+    </nav>
+
+    <!-- 입력 영수증 -->
+    <section class="receipt" aria-label="재산세 계산기">
+      <div class="r-head">
+        <div class="r-brand">세금영수증</div>
+        <h1 class="r-store">재 산 세</h1>
+        <div class="r-sub">2026 TAX RECEIPT · 계산</div>
+        <div class="r-meta">1주택 특례세율 · 공정시장가액비율 · 도시지역분 반영</div>
+      </div>
+      <div class="rule-double"></div>
+
+      <div class="field">
+        <label for="price">주택 공시가격 <span class="hint">/ 원 (부동산공시가격알리미 기준)</span></label>
+        <input type="text" id="price" inputmode="numeric" placeholder="500,000,000" autocomplete="off" />
+        <div class="priceKorean" id="priceKorean"></div>
+      </div>
+
+      <div class="div-dash"></div>
+
+      <div class="checks">
+        <label class="check"><input type="checkbox" id="isOneHouse" checked /><span class="box"></span><span class="lbl">1세대 1주택 (공정시장가액비율 43~45% + 9억 이하 특례세율)</span></label>
+        <label class="check"><input type="checkbox" id="isUrban" checked /><span class="box"></span><span class="lbl">도시지역 소재 (도시지역분 0.14% 부과 — 아파트는 대부분 해당)</span></label>
+      </div>
+
+      <div class="btnrow">
+        <button class="btn primary" id="calcBtn">계 산</button>
+        <button class="btn" id="resetBtn">초기화</button>
+      </div>
+
+      <div class="r-meta" style="margin-top:14px;">기준 2026년 · 최종 업데이트 <span id="updatedAt">2026-06-11</span></div>
+    </section>
+
+    <!-- 결과 영수증 -->
+    <section class="receipt result" id="resultCard" hidden aria-live="polite">
+      <div class="r-head">
+        <div class="r-store" style="font-size:18px;letter-spacing:4px;">계 산 영 수 증</div>
+        <div class="r-meta">* 참고용 추정치 *</div>
+      </div>
+      <div class="rule-double"></div>
+
+      <div class="total-banner">
+        <div class="total-label">연간 예상 납부 총액</div>
+        <div class="total" id="totalAmount">-</div>
+      </div>
+      <div class="div-dash"></div>
+
+      <div class="line"><span class="name">과세표준 (공시가 × 비율)</span><span class="dots"></span><span class="num" id="baseOut">-</span></div>
+      <div class="line"><span class="name">적용 세율</span><span class="dots"></span><span class="num" id="rateOut">-</span></div>
+      <div class="line"><span class="name">재산세 (본세)</span><span class="dots"></span><span class="num" id="mainOut">-</span></div>
+      <div class="line"><span class="name">도시지역분 (0.14%)</span><span class="dots"></span><span class="num" id="urbanOut">-</span></div>
+      <div class="line"><span class="name">지방교육세 (본세 20%)</span><span class="dots"></span><span class="num" id="eduOut">-</span></div>
+
+      <div class="rule-double"></div>
+      <div class="line grand"><span class="name">합계 (연간)</span><span class="dots"></span><span class="num" id="grandOut">-</span></div>
+      <div class="line"><span class="name">7월 납부 (1기분)</span><span class="dots"></span><span class="num" id="half1Out">-</span></div>
+      <div class="line"><span class="name">9월 납부 (2기분)</span><span class="dots"></span><span class="num" id="half2Out">-</span></div>
+
+      <ul class="notes" id="notesOut"></ul>
+
+      <div class="stamp-wrap"><span class="stamp">참고용 추정치</span></div>
+      <div class="barcode" aria-hidden="true"></div>
+      <div class="r-code">*세금영수증 · TAX-RECEIPT · 2026*</div>
+
+      <div class="btnrow">
+        <button class="btn" id="copyBtn">영수증 복사</button>
+      </div>
+    </section>
+
+    <div class="adslot">광 고 영 역 · AD (결과 직후)</div>
+
+    <div class="disclaimer">
+      ⚠️ 본 계산기는 <b>참고용 추정치</b>입니다. 과세표준상한제(직전연도 과표 비교)·지역자원시설세·감면·
+      별장 등 중과·도시지역분 부과 제외 지역 등 개별 사정은 반영되지 않습니다.
+      실제 세액은 <b>위택스(wetax.go.kr)·관할 시군구청·세무 전문가</b>로 확인하세요.
+    </div>
+
+    <!-- 해설 콘텐츠 (SEO / 애드센스 승인용) -->
+    <article class="content">
+      <h2>2026 주택 재산세, 이렇게 계산됩니다</h2>
+      <p>
+        주택 재산세는 <b>매년 6월 1일</b> 현재 소유자에게 부과됩니다. 계산 구조는 단순합니다:
+        <b>공시가격 × 공정시장가액비율 = 과세표준</b>에 누진세율을 적용하고,
+        여기에 <b>도시지역분(과세표준의 0.14%)</b>과 <b>지방교육세(본세의 20%)</b>가 더해집니다.
+      </p>
+      <ul>
+        <li><b>공정시장가액비율:</b> 1세대 1주택은 공시가격에 따라 <b>43%(3억 이하)·44%(3~6억)·45%(6억 초과)</b>, 다주택자·법인은 60%입니다. 2026년에도 1주택 특례 비율이 그대로 유지됩니다.</li>
+        <li><b>1주택 특례세율:</b> 공시가격 <b>9억 원 이하</b> 1세대 1주택은 모든 구간에서 세율을 <b>0.05%p 인하</b>한 특례세율(0.05~0.35%)을 적용합니다.</li>
+        <li><b>납부 시기:</b> 산출세액의 절반은 <b>7월(16~31일)</b>, 나머지 절반은 <b>9월(16~30일)</b>에 냅니다. 본세 20만 원 이하면 7월에 한 번에 고지될 수 있습니다.</li>
+      </ul>
+
+      <h2>2026 주택 재산세율 표</h2>
+      <table>
+        <thead><tr><th>과세표준</th><th>표준세율</th><th>1주택 특례세율 (공시 9억↓)</th></tr></thead>
+        <tbody>
+          <tr><td>6,000만 이하</td><td>0.1%</td><td>0.05%</td></tr>
+          <tr><td>6,000만~1.5억</td><td>6만 + 초과분 0.15%</td><td>3만 + 초과분 0.1%</td></tr>
+          <tr><td>1.5억~3억</td><td>19.5만 + 초과분 0.25%</td><td>12만 + 초과분 0.2%</td></tr>
+          <tr><td>3억 초과</td><td>57만 + 초과분 0.4%</td><td>27만 + 초과분 0.35%</td></tr>
+        </tbody>
+      </table>
+      <p class="sources">
+        ※ 2024년부터 주택분 <b>세부담상한제는 폐지</b>되고, 과세표준이 전년 대비 일정 비율(5% 수준) 이상
+        오르지 않도록 막는 <b>과세표준상한제</b>가 적용됩니다. 직전연도 자료가 필요해 본 계산기에는 반영하지 않았습니다.
+      </p>
+
+      <div class="adslot">광 고 영 역 · AD (본문 중간)</div>
+
+      <h2>보유세(재산세+종합부동산세)가 궁금하다면</h2>
+      <p class="sources">
+        흔히 말하는 <b>보유세</b>는 재산세에 <b>종합부동산세</b>를 더한 개념입니다. 종부세는 공시가격 합산액이
+        <b>1세대 1주택 12억 원, 그 외 9억 원</b>을 넘는 경우에만 추가로 부과되므로, 그 이하라면
+        이 페이지의 재산세가 사실상 보유세의 전부입니다.
+      </p>
+
+      <h2>자주 묻는 질문</h2>
+      <details><summary>우리 집 공시가격은 어디서 확인하나요?</summary>
+        <p>부동산공시가격알리미(realtyprice.kr)에서 주소로 무료 조회할 수 있습니다. 아파트·연립은 공동주택 공시가격, 단독주택은 개별주택가격을 보면 됩니다.</p>
+      </details>
+      <details><summary>5월 31일에 잔금을 치르면 재산세는 누가 내나요?</summary>
+        <p>과세기준일이 6월 1일이므로 그날 현재 소유자(=매수인)가 그해 재산세 전액을 부담합니다. 반대로 6월 2일 이후 잔금이면 매도인이 냅니다. 매매 일정에서 하루 차이로 1년 치 재산세가 갈립니다.</p>
+      </details>
+      <details><summary>도시지역분은 무엇이고 누구나 내나요?</summary>
+        <p>도시계획구역(주거·상업·공업지역 등) 안의 부동산에 과세표준의 0.14%를 추가 과세하는 항목입니다. 도시 아파트는 대부분 해당하고, 읍·면 지역 등 도시지역 밖 주택은 부과되지 않습니다.</p>
+      </details>
+
+      <h2>관련 계산기</h2>
+      <p>
+        집을 <b>살 때</b> 내는 세금은 <a href="chwideuk.html">취득세 계산기</a>,
+        <b>팔 때</b> 내는 세금은 <a href="yangdo.html">양도소득세 계산기</a>에서 계산할 수 있습니다.
+        재산세 부담을 줄이는 매매 타이밍은 <a href="tips/jaesan-savings.html">재산세 절세 꿀팁</a>에서 정리했습니다.
+      </p>
+
+      <h2>출처</h2>
+      <p class="sources">
+        지방세법 제110~115조(재산세 과세표준·세율·납기)·제111조의2(1세대1주택 특례세율)·제112조(도시지역분),
+        지방세법 시행령(공정시장가액비율), 행정안전부 보도자료.
+        정확한 수치는 국가법령정보센터(law.go.kr)·위택스(wetax.go.kr) 최신본으로 확인하세요.
+      </p>
+    </article>
+
+    <div class="adslot">광 고 영 역 · AD (본문 하단)</div>
+
+    <footer>
+      <span class="receipt-footer">THANK YOU ☺ 입력값은 서버로 전송되지 않으며 브라우저에서만 계산됩니다.</span><br />
+      © 2026 세금영수증 (tax-receipt)
+    </footer>
+  </div>
+
+  <script src="js/rules-jaesan-2026.js"></script>
+  <script src="js/jaesan-tax.js"></script>
+  <script src="js/app-jaesan.js"></script>
+</body>
+</html>

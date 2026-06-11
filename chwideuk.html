@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>취득세 계산기 2026 (생애최초 감면 포함) | 세금영수증</title>
+  <meta name="description" content="2026년 주택 취득세 계산기. 취득가액·전용면적·주택수·조정대상지역·생애최초 감면(최대 200만·인구감소지역 300만)을 반영해 취득세·지방교육세·농어촌특별세를 한 번에 계산합니다. 계산 과정과 근거까지 투명 공개." />
+  <link rel="canonical" href="https://tax-receipt.pages.dev/chwideuk.html" />
+  <meta property="og:title" content="취득세 계산기 2026 (생애최초 감면 포함)" />
+  <meta property="og:description" content="취득가액·주택수·조정지역·생애최초 감면까지 반영한 2026 주택 취득세 계산기." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://tax-receipt.pages.dev/chwideuk.html" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#129534;</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+  <div class="wrap">
+
+    <nav class="calc-nav" aria-label="계산기 메뉴">
+      <a href="index.html">홈</a>
+      <a href="chwideuk.html" class="active" aria-current="page">취득세</a>
+      <a href="yangdo.html">양도세</a>
+      <a href="jaesan.html">재산세</a>
+      <a href="tips.html">세금꿀팁</a>
+    </nav>
+
+    <!-- 입력 영수증 -->
+    <section class="receipt" aria-label="취득세 계산기">
+      <div class="r-head">
+        <div class="r-brand">세금영수증</div>
+        <h1 class="r-store">취 득 세</h1>
+        <div class="r-sub">2026 TAX RECEIPT · 계산</div>
+        <div class="r-meta">생애최초 감면 · 조정지역 · 다주택 중과 반영</div>
+      </div>
+      <div class="rule-double"></div>
+
+      <div class="field">
+        <label for="price">취득가액(매매가) <span class="hint">/ 원</span></label>
+        <input type="text" id="price" inputmode="numeric" placeholder="500,000,000" autocomplete="off" />
+        <div class="priceKorean" id="priceKorean"></div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label for="area">전용면적 <span class="hint">/ ㎡</span></label>
+          <input type="text" id="area" inputmode="decimal" placeholder="84.95" autocomplete="off" />
+        </div>
+        <div class="field">
+          <label for="houseCount">취득 후 주택수</label>
+          <select id="houseCount">
+            <option value="1">1주택</option>
+            <option value="2">2주택</option>
+            <option value="3">3주택</option>
+            <option value="4">4주택 이상</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="div-dash"></div>
+
+      <div class="checks">
+        <label class="check"><input type="checkbox" id="isAdjustedArea" /><span class="box"></span><span class="lbl">조정대상지역 주택</span></label>
+        <label class="check"><input type="checkbox" id="isTemporaryTwoHouse" /><span class="box"></span><span class="lbl">일시적 2주택 (기한 내 처분 → 중과 제외)</span></label>
+        <label class="check"><input type="checkbox" id="isFirstHome" /><span class="box"></span><span class="lbl">생애최초 주택 구입 (감면 대상)</span></label>
+        <label class="check"><input type="checkbox" id="isPopDecreaseArea" /><span class="box"></span><span class="lbl">인구감소지역 (감면 한도 300만)</span></label>
+      </div>
+
+      <div class="btnrow">
+        <button class="btn primary" id="calcBtn">계 산</button>
+        <button class="btn" id="resetBtn">초기화</button>
+      </div>
+
+      <div class="r-meta" style="margin-top:14px;">기준 2026년 · 최종 업데이트 <span id="updatedAt">2026-06-09</span></div>
+    </section>
+
+    <!-- 결과 영수증 -->
+    <section class="receipt result" id="resultCard" hidden aria-live="polite">
+      <div class="r-head">
+        <div class="r-store" style="font-size:18px;letter-spacing:4px;">계 산 영 수 증</div>
+        <div class="r-meta">* 참고용 추정치 *</div>
+      </div>
+      <div class="rule-double"></div>
+
+      <div class="total-banner">
+        <div class="total-label">예상 납부 총액</div>
+        <div class="total" id="totalAmount">-</div>
+      </div>
+      <div class="div-dash"></div>
+
+      <div class="line"><span class="name">적용 취득세율</span><span class="dots"></span><span class="num" id="rateOut">-</span></div>
+      <div class="line"><span class="name">취득세(감면 전)</span><span class="dots"></span><span class="num" id="baseOut">-</span></div>
+      <div class="line reduce"><span class="name">생애최초 감면</span><span class="dots"></span><span class="num" id="reduceOut">-</span></div>
+      <div class="line"><span class="name">취득세(감면 후)</span><span class="dots"></span><span class="num" id="acqOut">-</span></div>
+      <div class="line"><span class="name">지방교육세</span><span class="dots"></span><span class="num" id="eduOut">-</span></div>
+      <div class="line"><span class="name">농어촌특별세</span><span class="dots"></span><span class="num" id="ruralOut">-</span></div>
+
+      <div class="rule-double"></div>
+      <div class="line grand"><span class="name">합계</span><span class="dots"></span><span class="num" id="grandOut">-</span></div>
+
+      <ul class="notes" id="notesOut"></ul>
+
+      <div class="stamp-wrap"><span class="stamp">참고용 추정치</span></div>
+      <div class="barcode" aria-hidden="true"></div>
+      <div class="r-code">*세금영수증 · TAX-RECEIPT · 2026*</div>
+
+      <div class="btnrow">
+        <button class="btn" id="copyBtn">영수증 복사</button>
+      </div>
+    </section>
+
+    <div class="adslot">광 고 영 역 · AD (결과 직후)</div>
+
+    <div class="disclaimer">
+      ⚠️ 본 계산기는 <b>참고용 추정치</b>입니다. 일시적 2주택 처분기한·감면 사후요건·법인/상속·증여·분양권·오피스텔 등
+      개별 사정은 반영되지 않을 수 있습니다. 실제 세액은 <b>위택스(wetax.go.kr)·관할 시군구청·세무 전문가</b>로 확인하세요.
+    </div>
+
+    <!-- 해설 콘텐츠 (SEO / 애드센스 승인용) -->
+    <article class="content">
+      <h2>2026 생애최초 취득세 감면</h2>
+      <p>
+        생애 처음으로 주택을 구입하면 일정 한도까지 취득세를 감면받을 수 있습니다.
+        <b>소득 요건 없이</b> 실거래가 12억 원 이하 주택이면 대상이며, 산출된 취득세에서
+        <b>최대 200만 원</b>(2026년부터 인구감소지역은 <b>300만 원</b>)까지 감면됩니다.
+      </p>
+      <ul>
+        <li>산출 취득세가 한도 이하 → <b>전액 면제</b> <span class="eg">(예: 취득세 180만 → 0원)</span></li>
+        <li>산출 취득세가 한도 초과 → <b>한도만 감면</b> <span class="eg">(예: 350만 → 200만 감면, 150만 납부)</span></li>
+      </ul>
+      <p class="sources">
+        <b>대상 요건:</b> 취득일 현재 본인·배우자가 <b>주택 무소유</b>, <b>본인 거주 목적</b>, 유상거래(부담부증여 제외),
+        성년(미성년자 제외). · <b>추징:</b> 취득일부터 <b>3년 이내</b>에 매각·증여하거나 임대 등 다른 용도로 사용하면 감면세액이 추징됩니다.
+        (적용기한 2028.12.31 · 지방세특례제한법 제36조의3)
+      </p>
+      <p class="sources">
+        ※ 전용 <b>60㎡ 이하·3억(수도권 6억) 이하</b>의 비아파트(도시형생활주택·다가구 등)는
+        인구감소지역이 아니어도 <b>300만 원</b> 한도가 적용될 수 있습니다(아파트는 제외).
+      </p>
+
+      <h2>2026 주택 취득세율 표</h2>
+      <table>
+        <thead><tr><th>구분</th><th>비조정지역</th><th>조정대상지역</th></tr></thead>
+        <tbody>
+          <tr><td>1주택</td><td colspan="2">6억↓ 1% · 6~9억 1~3% · 9억↑ 3%</td></tr>
+          <tr><td>2주택</td><td>1~3%</td><td>8%</td></tr>
+          <tr><td>3주택</td><td>8%</td><td>12%</td></tr>
+          <tr><td>4주택+</td><td>12%</td><td>12%</td></tr>
+        </tbody>
+      </table>
+      <p class="sources">
+        ※ 일시적 2주택은 종전 주택을 기한 내 처분하면 중과에서 제외되어 일반세율(1~3%)이 적용됩니다.
+        지방교육세(일반 0.1~0.3%, 중과 0.4%)와 농어촌특별세(전용 85㎡ 초과 시 0.2~1.0%)가 추가됩니다.
+      </p>
+
+      <div class="adslot">광 고 영 역 · AD (본문 중간)</div>
+
+      <h2>자주 묻는 질문</h2>
+      <details><summary>전용 85㎡ 이하면 농어촌특별세를 내나요?</summary>
+        <p>아니요. 전용면적 85㎡ 이하 주택은 농어촌특별세가 비과세입니다. 85㎡를 초과할 때만 부과됩니다.</p>
+      </details>
+      <details><summary>생애최초 감면과 다주택 중과가 겹치면?</summary>
+        <p>생애최초 감면은 1주택 취득이 전제입니다. 본 계산기는 입력한 주택 수·지역에 따라 자동으로 분기해 계산합니다.</p>
+      </details>
+
+      <h2>관련 계산기·읽을거리</h2>
+      <p>
+        집을 <b>팔 때</b> 내는 세금이 궁금하다면 <a href="yangdo.html">양도소득세 계산기</a>에서
+        1세대1주택 비과세·고가주택 안분과세·장기보유특별공제(최대 80%)까지 계산해 보세요.
+        사고 나서 <b>매년 내는 세금</b>은 <a href="jaesan.html">재산세 계산기</a>로 확인할 수 있습니다.
+      </p>
+      <p>
+        생애최초 감면의 <b>신청 서류와 3년 추징 요건</b>은
+        <a href="tips/first-home-docs.html">생애최초 취득세 감면 조건·서류 총정리</a>에 따로 정리했습니다.
+      </p>
+
+      <h2>출처</h2>
+      <p class="sources">
+        지방세법(취득세)·지방교육세법·농어촌특별세법, 행정안전부 「생애최초 주택 구입에 대한 취득세 감면 운영기준」 고시.
+        정확한 수치는 국가법령정보센터(law.go.kr)·위택스(wetax.go.kr) 최신본으로 확인하세요.
+      </p>
+    </article>
+
+    <div class="adslot">광 고 영 역 · AD (본문 하단)</div>
+
+    <footer>
+      <span class="receipt-footer">THANK YOU ☺ 입력값은 서버로 전송되지 않으며 브라우저에서만 계산됩니다.</span><br />
+      © 2026 세금영수증 (tax-receipt)
+    </footer>
+  </div>
+
+  <script src="js/rules-2026.js"></script>
+  <script src="js/acquisition-tax.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="robots" content="noindex" />
+  <title>양도소득세 엔진 골든 테스트</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 960px; margin: 24px auto; padding: 0 16px; }
+    h1 { font-size: 20px; }
+    table { border-collapse: collapse; width: 100%; font-size: 14px; }
+    th, td { border: 1px solid #ddd; padding: 6px 8px; text-align: right; }
+    th:first-child, td:first-child { text-align: left; }
+    .pass { color: #0a7d28; font-weight: 700; }
+    .fail { color: #c01818; font-weight: 700; }
+    #summary { font-size: 18px; margin: 12px 0; }
+    .note { color: #666; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <h1>양도소득세(주택) 계산 엔진 — 골든 테스트</h1>
+  <p class="note">
+    ⚠️ 이 테스트는 <b>엔진이 정의된 규칙대로 일관되게 계산하는지</b>를 잠근다.
+    기대값의 법적 정확성은 <b>국세청·홈택스 모의계산·법령으로 별도 교차검증</b> 후 확정할 것.
+  </p>
+  <div id="summary">실행 중…</div>
+  <table id="results">
+    <thead>
+      <tr><th>시나리오</th><th>항목</th><th>기대</th><th>실제</th><th>판정</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script src="js/rules-yangdo-2026.js"></script>
+  <script src="js/yangdo-tax.js"></script>
+  <script>
+    var cases = [
+      { name: '1. 1세대1주택 비과세 (10억 ≤ 12억)',
+        input: { salePrice: 1000000000, buyPrice: 600000000, expenses: 20000000, holdYears: 5, liveYears: 3, houseCount: 1, isOneHouseExempt: true },
+        expect: { total: 0 } },
+
+      { name: '2. 1세대1주택 고가 20억 (표2 80%)',
+        input: { salePrice: 2000000000, buyPrice: 1000000000, holdYears: 10, liveYears: 10, houseCount: 1, isOneHouseExempt: true },
+        expect: { taxableGain: 400000000, ltsd: 320000000, taxBase: 77500000, calculatedTax: 12840000, localTax: 1284000, total: 14124000 } },
+
+      { name: '3. 2주택 비조정 일반 (보유5년 표1 10%)',
+        input: { salePrice: 800000000, buyPrice: 500000000, expenses: 10000000, holdYears: 5, houseCount: 2, isAdjustedArea: false },
+        expect: { ltsd: 29000000, taxBase: 258500000, calculatedTax: 78290000, localTax: 7829000, total: 86119000 } },
+
+      { name: '4. 조정 3주택 중과 +30%p (장특 배제)',
+        input: { salePrice: 800000000, buyPrice: 500000000, expenses: 10000000, holdYears: 5, houseCount: 3, isAdjustedArea: true },
+        expect: { ltsd: 0, taxBase: 287500000, calculatedTax: 175560000, localTax: 17556000, total: 193116000 } },
+
+      { name: '5. 단기 1년 미만 70%',
+        input: { salePrice: 600000000, buyPrice: 500000000, holdYears: 0.5, houseCount: 1 },
+        expect: { taxBase: 97500000, calculatedTax: 68250000, total: 75075000 } },
+
+      { name: '6. 단기 1~2년 60%',
+        input: { salePrice: 600000000, buyPrice: 500000000, holdYears: 1.5, houseCount: 1 },
+        expect: { calculatedTax: 58500000, total: 64350000 } },
+
+      { name: '7. 양도차손 (양도가 < 취득가)',
+        input: { salePrice: 500000000, buyPrice: 600000000, holdYears: 5, houseCount: 1 },
+        expect: { total: 0 } },
+
+      { name: '8. 1주택 고가 16억, 거주<2년 → 표1',
+        input: { salePrice: 1600000000, buyPrice: 1000000000, holdYears: 5, liveYears: 1, houseCount: 1, isOneHouseExempt: true },
+        expect: { taxableGain: 150000000, ltsd: 15000000, taxBase: 132500000, calculatedTax: 30935000, localTax: 3093500, total: 34028500 } },
+
+      // 국세청 공식 세액계산 사례(nts.go.kr 세액계산요령)와 중간단계 전부 대조 일치 (2026-06-09 검증)
+      { name: '9. [국세청 공식사례] 15억·취득8억·경비3천만·보유10거주10',
+        input: { salePrice: 1500000000, buyPrice: 800000000, expenses: 30000000, holdYears: 10, liveYears: 10, houseCount: 1, isOneHouseExempt: true },
+        expect: { gain: 670000000, taxableGain: 134000000, ltsd: 107200000, incomeAmount: 26800000, taxBase: 24300000, calculatedTax: 2385000, localTax: 238500, total: 2623500 } },
+    ];
+
+    var tbody = document.querySelector('#results tbody');
+    var pass = 0, fail = 0;
+
+    cases.forEach(function (c) {
+      var r = window.Yangdo.calcYangdoTax(c.input);
+      var fields = Object.keys(c.expect);
+      fields.forEach(function (f, i) {
+        var exp = c.expect[f];
+        var act = r.ok ? r[f] : 'ERR';
+        var ok = act === exp;
+        ok ? pass++ : fail++;
+        var tr = document.createElement('tr');
+        tr.innerHTML =
+          '<td>' + (i === 0 ? c.name : '') + '</td>' +
+          '<td>' + f + '</td>' +
+          '<td>' + exp.toLocaleString() + '</td>' +
+          '<td>' + (typeof act === 'number' ? act.toLocaleString() : act) + '</td>' +
+          '<td class="' + (ok ? 'pass' : 'fail') + '">' + (ok ? 'PASS' : 'FAIL') + '</td>';
+        tbody.appendChild(tr);
+      });
+    });
+
+    var s = document.getElementById('summary');
+    s.textContent = '결과: ' + pass + ' PASS / ' + fail + ' FAIL';
+    s.className = fail === 0 ? 'pass' : 'fail';
+  </script>
+</body>
+</html>
