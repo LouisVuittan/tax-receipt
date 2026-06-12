@@ -86,6 +86,8 @@ body {
   font-size: 22px; font-weight: 700; letter-spacing: 6px;
   margin: 2px 0;
 }
+/* 계산기 이름 H1: 검색엔진이 "취득세"로 읽도록 글자 사이 공백 대신 자간으로 벌림 */
+.r-store.wide { letter-spacing: 0.6em; margin-left: 0.3em; }
 .r-sub { font-size: 12px; color: var(--faint); letter-spacing: 1px; }
 .r-meta { font-size: 11px; color: var(--faint); letter-spacing: 1px; margin-top: 6px; }
 /* 짧은 가운데정렬 문구는 줄 길이를 균형 있게 나눠 외톨이 단어를 막는다 (지원 브라우저 한정) */
