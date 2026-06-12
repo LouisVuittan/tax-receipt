@@ -4,4 +4,4 @@ Disallow: /tests.html
 Disallow: /tests-yangdo.html
 Disallow: /tests-jaesan.html
 
-Sitemap: https://tax-receipt.pages.dev/sitemap.xml
+Sitemap: https://tax-receipt.kr/sitemap.xml

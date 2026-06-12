@@ -1,7 +1,7 @@
 # 세금영수증 (tax-receipt) — 부동산 세금 계산기 2026
 
 서버 0, 순수 클라이언트 사이드 세금 계산기 모음 + 정보 글. 브랜드: **세금영수증**. 레트로 영수증 테마.
-Cloudflare Pages에 **무료**로 그대로 배포된다. 배포 주소: **tax-receipt.pages.dev**.
+Cloudflare Pages에 **무료**로 그대로 배포된다. 배포 주소: **tax-receipt.kr**.
 
 수록 페이지:
 - **홈(허브)** (`index.html`) — 계산기 카드 + "부동산세금계산기" 키워드 + 내부링크 허브
@@ -45,7 +45,7 @@ tax-calculator/
 - **취득세** (2026-06-09): 위택스 미리계산 대조 + 생애최초 감면 지특법 제36조의3 원문 대조 완료. `tests.html` **36 PASS**.
 - **양도세** (2026-06-09): 국세청 세율표·세액계산요령 공식사례 대조 완료(고가주택 안분+장특공제 표2 일치). `tests-yangdo.html` **37 PASS**.
 - **재산세** (2026-06-11): 지방세법 제111조·제111조의2 세율표(행안부·구청 안내) 대조, 공정시장가액비율 2026년 유지 확인. `tests-jaesan.html` **40 PASS**. 과세표준상한제·지역자원시설세는 v1 미반영(화면 명시).
-- canonical/og URL = `tax-receipt.pages.dev`로 설정 완료. 취득세는 `/chwideuk.html`로 이동(배포 전이라 SEO 비용 0).
+- canonical/og URL = `tax-receipt.kr`로 설정 완료. 취득세는 `/chwideuk.html`로 이동(배포 전이라 SEO 비용 0).
 - ⚠️ 데이터는 연 1회(연초) 세율 개정 반영 필요. 조정대상지역 목록도 국토부 공고로 주기적 갱신.
 
 ## 로컬에서 보기
@@ -62,7 +62,8 @@ python -m http.server 8787      # 또는  npx serve .
 1. [dash.cloudflare.com](https://dash.cloudflare.com) 로그인 → 좌측 **Workers & Pages**.
 2. **Create application → Pages → Upload assets**.
 3. 프로젝트 이름 `tax-receipt` 입력 → `tax-calculator` 폴더의 *내용물*을 드래그&드롭(폴더째 X, `index.html`이 최상단에 오도록).
-4. **Deploy** → `https://tax-receipt.pages.dev` 발급. 수정 후 재배포는 같은 화면에서 다시 업로드.
+4. **Deploy** → `*.pages.dev` 주소 발급. 수정 후 재배포는 같은 화면에서 다시 업로드.
+5. 커스텀 도메인: 프로젝트 → **Custom domains**에 `tax-receipt.kr` 연결(가비아 구매, 네임서버 = Cloudflare).
 
 ### 방법 B — GitHub 연동 (자동 배포, 권장)
 1. 이 폴더를 GitHub 저장소로 push.
