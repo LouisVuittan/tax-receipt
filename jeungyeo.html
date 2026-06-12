@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>증여세 계산기 2026 (면제한도·혼인출산 공제·10년 합산) | 세금영수증</title>
+  <meta name="description" content="2026년 증여세 계산기. 증여 금액과 관계만 고르면 면제한도(배우자 6억·자녀 5천만), 혼인·출산 공제 1억, 10년 내 사전증여 합산, 세대생략 할증, 신고세액공제 3%까지 반영해 납부세액을 계산합니다. 계산 과정과 근거까지 투명 공개." />
+  <link rel="canonical" href="https://tax-receipt.kr/jeungyeo" />
+  <meta property="og:title" content="증여세 계산기 2026 (면제한도·혼인출산 공제·10년 합산)" />
+  <meta property="og:description" content="금액과 관계만 고르면 1분 만에 — 공제·할증·신고세액공제까지 반영한 2026 증여세." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://tax-receipt.kr/jeungyeo" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#129534;</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+  <div class="wrap">
+
+    <nav class="calc-nav" aria-label="계산기 메뉴">
+      <a href="index.html">홈</a>
+      <a href="chwideuk.html">취득세</a>
+      <a href="yangdo.html">양도세</a>
+      <a href="jaesan.html">재산세</a>
+      <a href="jeungyeo.html" class="active" aria-current="page">증여세</a>
+      <a href="tips.html">세금꿀팁</a>
+    </nav>
+
+    <!-- 입력 영수증 -->
+    <section class="receipt" aria-label="증여세 계산기">
+      <div class="r-head">
+        <div class="r-brand">세금영수증</div>
+        <h1 class="r-store">증 여 세</h1>
+        <div class="r-sub">2026 TAX RECEIPT · 계산</div>
+        <div class="r-meta">관계별 면제한도 · 혼인출산 공제 · 10년 합산 · 세대생략 할증</div>
+      </div>
+      <div class="rule-double"></div>
+
+      <div class="field">
+        <label for="amount">증여재산가액 <span class="hint">/ 원 (현금은 금액, 부동산은 시가)</span></label>
+        <input type="text" id="amount" inputmode="numeric" placeholder="150,000,000" autocomplete="off" />
+        <div class="priceKorean" id="amountKorean"></div>
+      </div>
+
+      <div class="field">
+        <label for="relation">증여자(주는 사람)와의 관계 <span class="hint">/ 받는 사람 기준</span></label>
+        <select id="relation">
+          <option value="adult" selected>부모·조부모 → 성년 자녀·손주 (공제 5천만)</option>
+          <option value="minor">부모·조부모 → 미성년 자녀·손주 (공제 2천만)</option>
+          <option value="spouse">배우자 (공제 6억)</option>
+          <option value="ascendant">자녀 → 부모 등 직계존속 (공제 5천만)</option>
+          <option value="relative">형제자매·사위·며느리 등 기타친족 (공제 1천만)</option>
+          <option value="other">그 외 타인 (공제 없음)</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="prior">10년 내 같은 사람에게 받은 사전증여 <span class="hint">/ 원 · 없으면 비움 (부모는 부+모 합산)</span></label>
+        <input type="text" id="prior" inputmode="numeric" placeholder="0" autocomplete="off" />
+        <div class="priceKorean" id="priorKorean"></div>
+      </div>
+
+      <div class="div-dash"></div>
+
+      <div class="checks">
+        <label class="check"><input type="checkbox" id="useMarriageBirth" /><span class="box"></span><span class="lbl">혼인·출산 공제 +1억 (혼인신고·자녀 출생 전후 2년 내 직계존속 증여)</span></label>
+        <label class="check"><input type="checkbox" id="isSkip" /><span class="box"></span><span class="lbl">세대생략 증여 (조부모 → 손주처럼 한 세대 건너뜀, 할증 30~40%)</span></label>
+        <label class="check"><input type="checkbox" id="onTimeReport" checked /><span class="box"></span><span class="lbl">기한 내 신고 (3개월 내 자진신고 → 신고세액공제 3%)</span></label>
+      </div>
+
+      <div class="btnrow">
+        <button class="btn primary" id="calcBtn">계 산</button>
+        <button class="btn" id="resetBtn">초기화</button>
+      </div>
+
+      <div class="r-meta" style="margin-top:14px;">기준 2026년 · 최종 업데이트 <span id="updatedAt">2026-06-12</span></div>
+    </section>
+
+    <!-- 결과 영수증 -->
+    <section class="receipt result" id="resultCard" hidden aria-live="polite">
+      <div class="r-head">
+        <div class="r-store" style="font-size:18px;letter-spacing:4px;">계 산 영 수 증</div>
+        <div class="r-meta">* 참고용 추정치 *</div>
+      </div>
+      <div class="rule-double"></div>
+
+      <div class="total-banner">
+        <div class="total-label">예상 납부세액</div>
+        <div class="total" id="totalAmount">-</div>
+      </div>
+      <div class="div-dash"></div>
+
+      <div class="line"><span class="name">증여재산 (사전증여 합산)</span><span class="dots"></span><span class="num" id="totalValueOut">-</span></div>
+      <div class="line"><span class="name">증여재산공제</span><span class="dots"></span><span class="num" id="deductionOut">-</span></div>
+      <div class="line"><span class="name">과세표준</span><span class="dots"></span><span class="num" id="baseOut">-</span></div>
+      <div class="line"><span class="name">산출세액 (10~50% 누진)</span><span class="dots"></span><span class="num" id="calcOut">-</span></div>
+      <div class="line"><span class="name">세대생략 할증</span><span class="dots"></span><span class="num" id="surchargeOut">-</span></div>
+      <div class="line"><span class="name">기납부세액공제</span><span class="dots"></span><span class="num" id="priorCreditOut">-</span></div>
+      <div class="line"><span class="name">신고세액공제 (3%)</span><span class="dots"></span><span class="num" id="reportCreditOut">-</span></div>
+
+      <div class="rule-double"></div>
+      <div class="line grand"><span class="name">납부세액</span><span class="dots"></span><span class="num" id="grandOut">-</span></div>
+
+      <ul class="notes" id="notesOut"></ul>
+
+      <div class="stamp-wrap"><span class="stamp">참고용 추정치</span></div>
+      <div class="barcode" aria-hidden="true"></div>
+      <div class="r-code">*세금영수증 · TAX-RECEIPT · 2026*</div>
+
+      <div class="btnrow">
+        <button class="btn" id="copyBtn">영수증 복사</button>
+      </div>
+    </section>
+
+    <div class="adslot">광 고 영 역 · AD (결과 직후)</div>
+
+    <div class="disclaimer">
+      ⚠️ 본 계산기는 <b>참고용 추정치</b>입니다. 부동산·주식의 시가 평가, 부담부증여(채무 인수),
+      창업자금·가업승계 특례, 비거주자, 사전증여의 실제 기납부세액 등 개별 사정은 반영되지 않습니다.
+      실제 세액은 <b>홈택스(hometax.go.kr)·세무 전문가</b>로 확인하세요.
+    </div>
+
+    <!-- 해설 콘텐츠 (SEO / 애드센스 승인용) -->
+    <article class="content">
+      <h2>2026 증여세, 이렇게 계산됩니다</h2>
+      <p>
+        증여세는 <b>받는 사람(수증자)</b> 기준으로 계산합니다. 구조는 네 단계입니다:
+        ① 증여재산가액에 <b>10년 내 같은 사람에게 받은 사전증여를 합산</b>하고,
+        ② 관계별 <b>증여재산공제(면제한도)</b>를 빼서 과세표준을 구한 뒤,
+        ③ <b>10~50% 누진세율</b>을 적용하고, ④ 할증·세액공제를 반영하면 납부세액입니다.
+      </p>
+
+      <h2>관계별 면제한도 (10년 합산 기준)</h2>
+      <table>
+        <thead><tr><th>증여자 → 수증자</th><th>공제 한도 (10년)</th></tr></thead>
+        <tbody>
+          <tr><td>배우자</td><td><b>6억 원</b></td></tr>
+          <tr><td>부모·조부모 → 성년 자녀·손주</td><td><b>5,000만 원</b></td></tr>
+          <tr><td>부모·조부모 → 미성년 자녀·손주</td><td>2,000만 원</td></tr>
+          <tr><td>자녀 → 부모 (직계존속)</td><td>5,000만 원</td></tr>
+          <tr><td>형제자매·사위·며느리 등 기타친족</td><td>1,000만 원</td></tr>
+          <tr><td>그 외 타인</td><td>없음</td></tr>
+        </tbody>
+      </table>
+      <p class="sources">
+        ※ 한도는 <b>증여 1건이 아니라 10년 누적</b> 기준입니다. 아버지와 어머니는 <b>동일인으로 합산</b>되므로
+        각각 5천만 원씩 주는 식으로는 한도가 늘지 않습니다 (조부모는 부모와 별도 그룹).
+      </p>
+
+      <h2>혼인·출산하면 1억 추가 공제</h2>
+      <p>
+        2024년부터 <b>혼인신고일 전후 2년</b> 또는 <b>자녀 출생(입양)일부터 2년</b> 안에
+        부모 등 직계존속에게 받는 증여는 기본 공제 5천만 원과 <b>별도로 1억 원</b>이 더 공제됩니다
+        (혼인+출산 합쳐 평생 1억 한도). 신랑·신부가 각자 부모에게 받으면
+        <b>부부 합산 최대 3억 원</b>까지 세금 없이 받을 수 있습니다. 2026년에도 유지됩니다.
+      </p>
+
+      <div class="adslot">광 고 영 역 · AD (본문 중간)</div>
+
+      <h2>2026 증여세율 표</h2>
+      <table>
+        <thead><tr><th>과세표준</th><th>세율</th><th>누진공제</th></tr></thead>
+        <tbody>
+          <tr><td>1억 이하</td><td>10%</td><td>—</td></tr>
+          <tr><td>1억~5억</td><td>20%</td><td>1,000만</td></tr>
+          <tr><td>5억~10억</td><td>30%</td><td>6,000만</td></tr>
+          <tr><td>10억~30억</td><td>40%</td><td>1억 6,000만</td></tr>
+          <tr><td>30억 초과</td><td>50%</td><td>4억 6,000만</td></tr>
+        </tbody>
+      </table>
+
+      <h2>놓치기 쉬운 세 가지</h2>
+      <ul>
+        <li><b>세대생략 할증:</b> 조부모가 손주에게 바로 주면 산출세액의 <b>30%가 가산</b>됩니다 (수증자가 미성년이고 20억 초과면 40%). 그래도 "조부모→부모→손주" 2번 내는 것보다 유리한 경우가 많아 비교 계산이 필요합니다.</li>
+        <li><b>신고기한:</b> 증여일이 속한 달의 말일부터 <b>3개월</b>. 기한 내 신고하면 <b>3% 세액공제</b>, 놓치면 공제는커녕 가산세(무신고 20% 등)가 붙습니다. 세금이 0원이어도 신고해두면 나중에 자금출처 입증에 유리합니다.</li>
+        <li><b>부동산 증여:</b> 증여세는 <b>시가(매매사례가액·감정가액)</b>로 평가하는 게 원칙이고, 별도로 <b>증여취득세(3.5%, 조정대상지역 공시 3억 이상은 12%)</b>가 붙습니다. 취득세는 <a href="chwideuk.html">취득세 계산기</a>에서 확인하세요.</li>
+      </ul>
+
+      <h2>자주 묻는 질문</h2>
+      <details><summary>10년 전에 준 것도 합산되나요?</summary>
+        <p>아니요. 증여일 기준으로 <b>소급 10년 이내</b>의 동일인 증여만 합산합니다. 그래서 자녀가 어릴 때부터 10년 단위로 나눠 증여하면(미성년 2천만 → 성년 5천만 → …) 공제를 여러 번 쓸 수 있습니다.</p>
+      </details>
+      <details><summary>생활비나 축의금도 증여세를 내나요?</summary>
+        <p>사회 통념상 인정되는 피부양자의 생활비·교육비·축의금·혼수는 비과세입니다. 다만 생활비 명목으로 받아 <b>예금·주식·부동산 구입에 쓰면</b> 증여로 봅니다.</p>
+      </details>
+      <details><summary>부모님 돈을 무이자로 빌리면요?</summary>
+        <p>차용증·이자 지급·상환 실적이 있어야 차입으로 인정됩니다. 무이자(또는 저리) 대여는 <b>연 4.6% 기준 이자 차액이 연 1천만 원을 넘으면</b> 그 이익에 증여세가 과세될 수 있습니다.</p>
+      </details>
+
+      <h2>관련 계산기·꿀팁</h2>
+      <p>
+        증여받은 부동산의 취득세는 <a href="chwideuk.html">취득세 계산기</a>,
+        보유 중 매년 내는 세금은 <a href="jaesan.html">재산세 계산기</a>,
+        나중에 팔 때는 <a href="yangdo.html">양도소득세 계산기</a>로 이어서 계산하세요.
+        면제한도 활용 전략은 <a href="tips/jeungyeo-gongje.html">증여세 면제한도 총정리</a>에 정리했습니다.
+      </p>
+
+      <h2>출처</h2>
+      <p class="sources">
+        상속세 및 증여세법 제47조(증여세 과세가액)·제53조(증여재산공제)·제53조의2(혼인·출산 공제)·
+        제56조(세율)·제57조(세대생략 할증)·제58조(기납부세액공제)·제69조(신고세액공제),
+        국세청 증여세 안내(nts.go.kr). 정확한 수치는 국가법령정보센터(law.go.kr)·홈택스 최신본으로 확인하세요.
+      </p>
+    </article>
+
+    <div class="adslot">광 고 영 역 · AD (본문 하단)</div>
+
+    <footer>
+      <span class="receipt-footer">THANK YOU ☺ 입력값은 서버로 전송되지 않으며 브라우저에서만 계산됩니다.</span><br />
+      © 2026 세금영수증 (tax-receipt) · <a href="privacy.html">개인정보처리방침</a>
+    </footer>
+  </div>
+
+  <script src="js/rules-jeungyeo-2026.js"></script>
+  <script src="js/jeungyeo-tax.js"></script>
+  <script src="js/app-jeungyeo.js"></script>
+</body>
+</html>

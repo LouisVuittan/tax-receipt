@@ -7,6 +7,7 @@ const suites = [
   { html: 'tests.html', engine: './js/acquisition-tax.js', fn: 'calcAcquisitionTax' },
   { html: 'tests-yangdo.html', engine: './js/yangdo-tax.js', fn: 'calcYangdoTax' },
   { html: 'tests-jaesan.html', engine: './js/jaesan-tax.js', fn: 'calcJaesanTax' },
+  { html: 'tests-jeungyeo.html', engine: './js/jeungyeo-tax.js', fn: 'calcJeungyeoTax' },
 ];
 
 let totalPass = 0, totalFail = 0;
