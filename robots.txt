@@ -4,5 +4,6 @@ Disallow: /tests.html
 Disallow: /tests-yangdo.html
 Disallow: /tests-jaesan.html
 Disallow: /tests-jeungyeo.html
+Disallow: /tests-sangsok.html
 
 Sitemap: https://tax-receipt.kr/sitemap.xml

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="robots" content="noindex" />
+  <title>상속세 엔진 골든 테스트</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 960px; margin: 24px auto; padding: 0 16px; }
+    h1 { font-size: 20px; }
+    table { border-collapse: collapse; width: 100%; font-size: 14px; }
+    th, td { border: 1px solid #ddd; padding: 6px 8px; text-align: right; }
+    th:first-child, td:first-child { text-align: left; }
+    .pass { color: #0a7d28; font-weight: 700; }
+    .fail { color: #c01818; font-weight: 700; }
+    #summary { font-size: 18px; margin: 12px 0; }
+    .note { color: #666; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <h1>상속세 계산 엔진 — 골든 테스트</h1>
+  <p class="note">
+    ⚠️ 이 테스트는 <b>엔진이 정의된 규칙대로 일관되게 계산하는지</b>를 잠근다.
+    기대값은 상증법 제19·21·22·26·69조(국세청 세율표 대조)로 수계산함.
+  </p>
+  <div id="summary">실행 중…</div>
+  <table id="results">
+    <thead>
+      <tr><th>시나리오</th><th>항목</th><th>기대</th><th>실제</th><th>판정</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script src="js/rules-sangsok-2026.js"></script>
+  <script src="js/sangsok-tax.js"></script>
+  <script>
+    var cases = [
+      // 공제 = 일괄5억 + 배우자공제 + 금융재산공제 / 산출 = 과표×세율−누진공제 / 신고세액공제 3%
+      { name: 'A. 12억 · 배우자 있음 (공제 10억 → 과표 2억)',
+        input: { estate: 1200000000, hasSpouse: true },
+        expect: { spouseDeduction: 500000000, totalDeduction: 1000000000, taxBase: 200000000, calcTax: 30000000, reportCredit: 900000, finalTax: 29100000 } },
+
+      { name: 'B. 10억 · 배우자 있음 (헤드라인 케이스: 세액 0)',
+        input: { estate: 1000000000, hasSpouse: true },
+        expect: { totalDeduction: 1000000000, taxBase: 0, calcTax: 0, finalTax: 0 } },
+
+      { name: 'C. 7억 · 배우자 없음 (일괄 5억 → 과표 2억)',
+        input: { estate: 700000000, hasSpouse: false },
+        expect: { totalDeduction: 500000000, taxBase: 200000000, calcTax: 30000000, reportCredit: 900000, finalTax: 29100000 } },
+
+      { name: 'D. 5억 · 배우자 없음 (세액 0)',
+        input: { estate: 500000000, hasSpouse: false },
+        expect: { taxBase: 0, calcTax: 0, finalTax: 0 } },
+
+      { name: 'E. 20억 · 배우자 실제상속 8억 (배우자공제 8억)',
+        input: { estate: 2000000000, hasSpouse: true, spouseAmount: 800000000 },
+        expect: { spouseDeduction: 800000000, totalDeduction: 1300000000, taxBase: 700000000, calcTax: 150000000, reportCredit: 4500000, finalTax: 145500000 } },
+
+      { name: 'F. 15억 · 배우자(최소) · 순금융 4억 (금융공제 8천만)',
+        input: { estate: 1500000000, hasSpouse: true, financial: 400000000 },
+        expect: { finDeduction: 80000000, totalDeduction: 1080000000, taxBase: 420000000, calcTax: 74000000, reportCredit: 2220000, finalTax: 71780000 } },
+
+      { name: 'G. 6억 · 순금융 1,500만 (2천만 이하 전액 공제)',
+        input: { estate: 600000000, hasSpouse: false, financial: 15000000 },
+        expect: { finDeduction: 15000000, totalDeduction: 515000000, taxBase: 85000000, calcTax: 8500000, reportCredit: 255000, finalTax: 8245000 } },
+
+      { name: 'H. 30억 · 배우자(최소) · 순금융 15억 (금융공제 2억 캡)',
+        input: { estate: 3000000000, hasSpouse: true, financial: 1500000000 },
+        expect: { finDeduction: 200000000, totalDeduction: 1200000000, taxBase: 1800000000, calcTax: 560000000, reportCredit: 16800000, finalTax: 543200000 } },
+
+      { name: 'I. 8억 · 채무 1억 · 장례비 2천만→1,500만 클램프 (배우자 없음)',
+        input: { estate: 800000000, debt: 100000000, funeral: 20000000, hasSpouse: false },
+        expect: { grossValue: 685000000, funeral: 15000000, taxBase: 185000000, calcTax: 27000000, reportCredit: 810000, finalTax: 26190000 } },
+
+      { name: 'J. 7억 · 기한 후 신고 (신고세액공제 없음)',
+        input: { estate: 700000000, hasSpouse: false, onTimeReport: false },
+        expect: { calcTax: 30000000, reportCredit: 0, finalTax: 30000000 } },
+
+      { name: 'K. 50억 · 배우자 실제상속 40억 (배우자공제 30억 캡)',
+        input: { estate: 5000000000, hasSpouse: true, spouseAmount: 4000000000 },
+        expect: { spouseDeduction: 3000000000, totalDeduction: 3500000000, taxBase: 1500000000, calcTax: 440000000, reportCredit: 13200000, finalTax: 426800000 } },
+
+      { name: 'L. 6억 · 장례비 300만→500만 보정 (무증빙 최소 인정)',
+        input: { estate: 600000000, funeral: 3000000, hasSpouse: false },
+        expect: { grossValue: 595000000, funeral: 5000000, taxBase: 95000000, calcTax: 9500000, reportCredit: 285000, finalTax: 9215000 } },
+    ];
+
+    var tbody = document.querySelector('#results tbody');
+    var pass = 0, fail = 0;
+
+    cases.forEach(function (c) {
+      var r = window.Sangsok.calcSangsokTax(c.input);
+      var fields = Object.keys(c.expect);
+      fields.forEach(function (f, i) {
+        var exp = c.expect[f];
+        var act = r.ok ? r[f] : 'ERR';
+        var ok = act === exp;
+        ok ? pass++ : fail++;
+        var tr = document.createElement('tr');
+        tr.innerHTML =
+          '<td>' + (i === 0 ? c.name : '') + '</td>' +
+          '<td>' + f + '</td>' +
+          '<td>' + exp.toLocaleString() + '</td>' +
+          '<td>' + (typeof act === 'number' ? act.toLocaleString() : act) + '</td>' +
+          '<td class="' + (ok ? 'pass' : 'fail') + '">' + (ok ? 'PASS' : 'FAIL') + '</td>';
+        tbody.appendChild(tr);
+      });
+    });
+
+    var s = document.getElementById('summary');
+    s.textContent = '결과: ' + pass + ' PASS / ' + fail + ' FAIL';
+    s.className = fail === 0 ? 'pass' : 'fail';
+  </script>
+</body>
+</html>
