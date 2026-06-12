@@ -88,6 +88,8 @@ body {
 }
 .r-sub { font-size: 12px; color: var(--faint); letter-spacing: 1px; }
 .r-meta { font-size: 11px; color: var(--faint); letter-spacing: 1px; margin-top: 6px; }
+/* 짧은 가운데정렬 문구는 줄 길이를 균형 있게 나눠 외톨이 단어를 막는다 (지원 브라우저 한정) */
+.r-sub, .r-meta, .a-meta, h1.a-title, .content h2 { text-wrap: balance; }
 
 /* ---------- 구분선 ---------- */
 .div-dash { border-top: 1px dashed var(--ink); opacity: .45; margin: 14px 0; }
@@ -213,7 +215,7 @@ input:focus, select:focus { outline: none; border-bottom-style: solid; border-bo
 }
 .content h2:first-child { margin-top: 4px; }
 .content h3 { font-size: 14px; margin: 16px 0 6px; }
-.content p, .content li { font-size: 13px; line-height: 1.8; }
+.content p, .content li { font-size: 13px; line-height: 1.8; text-wrap: pretty; }
 .content ul { padding-left: 18px; }
 /* 예시 괄호는 한 덩어리로 다음 줄에 내림 (중간에서 끊기지 않게) */
 .content .eg { display: block; color: var(--faint); font-size: 12px; }
@@ -242,8 +244,8 @@ input:focus, select:focus { outline: none; border-bottom-style: solid; border-bo
   border: 2px dashed var(--ink); padding: 14px 16px; background: rgba(255,255,255,.4);
 }
 .calc-card:hover { background: var(--ink); color: var(--paper); }
-.calc-card .cc-title { font-size: 15px; font-weight: 700; letter-spacing: 2px; }
-.calc-card .cc-desc { font-size: 12px; margin-top: 4px; opacity: .75; }
+.calc-card .cc-title { display: block; font-size: 15px; font-weight: 700; letter-spacing: 2px; }
+.calc-card .cc-desc { display: block; font-size: 12px; margin-top: 4px; opacity: .75; text-wrap: pretty; }
 
 footer { color: var(--counter-2); font-size: 11px; text-align: center; padding: 24px 0 8px; letter-spacing: 1px; }
 footer .receipt-footer { color: rgba(43,40,36,.55); }
