@@ -26,17 +26,20 @@ body {
   line-height: 1.65;
   -webkit-font-smoothing: antialiased;
   /* 한글은 어절(띄어쓰기) 단위로만 줄바꿈 — 단어 중간에서 끊기지 않게.
-     긴 숫자/URL 등 끊을 곳 없는 토큰만 예외적으로 줄바꿈 */
+     anywhere는 공간이 부족하면 단어 중간을 마구 끊어 가독성을 해치므로
+     break-word(한 줄을 통째로 넘칠 때만 토큰 분리)로 제한 */
   word-break: keep-all;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 
 .wrap { max-width: 460px; margin: 0 auto; padding: 28px 14px 48px; }
 
 /* ---------- 계산기 네비게이션 (영수증 탭) ---------- */
-.calc-nav { display: flex; gap: 6px; margin: 0 0 18px; }
+/* 탭이 7개라 좁은 화면에서는 두 줄로 감싼다. 탭 안의 글자는 절대 중간에서 끊지 않는다 */
+.calc-nav { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 18px; }
 .calc-nav a {
-  flex: 1; text-align: center; text-decoration: none;
+  flex: 1 1 calc(25% - 6px); text-align: center; text-decoration: none;
+  white-space: nowrap;
   font-family: inherit; font-size: 13px; font-weight: 700; letter-spacing: 1px;
   padding: 10px 2px; color: var(--ink);
   background: rgba(255,255,255,.35); border: 2px dashed var(--ink);
