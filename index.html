@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>부동산 세금 계산기 2026 — 취득세·재산세·양도세·증여세·상속세 | 세금영수증</title>
-  <meta name="description" content="집 살 때(취득세), 가질 때(재산세), 팔 때(양도소득세), 물려줄 때(증여세·상속세) — 부동산 세금 5종을 한곳에서 무료로 계산하세요. 생애최초 감면, 1주택 특례, 다주택 중과, 혼인·출산 공제, 상속 일괄공제까지 2026년 최신 세율 반영. 가입 없이, 입력값 서버 전송 없이." />
+  <title>부동산 세금 계산기 2026 — 취득세·재산세·종부세·양도세·증여세·상속세 | 세금영수증</title>
+  <meta name="description" content="집 살 때(취득세), 가질 때(재산세·종합부동산세), 팔 때(양도소득세), 물려줄 때(증여세·상속세) — 부동산 세금 6종을 한곳에서 무료로 계산하세요. 생애최초 감면, 1주택 특례, 종부세 공제, 다주택 중과, 혼인·출산 공제, 상속 일괄공제까지 2026년 최신 세율 반영. 가입 없이, 입력값 서버 전송 없이." />
   <link rel="canonical" href="https://tax-receipt.kr/" />
-  <meta property="og:title" content="부동산 세금 계산기 2026 — 취득세·재산세·양도세·증여세·상속세" />
-  <meta property="og:description" content="살 때·가질 때·팔 때·물려줄 때 내는 부동산 세금 5종 무료 계산기. 2026 최신 세율, 무가입, 무서버." />
+  <meta property="og:title" content="부동산 세금 계산기 2026 — 취득세·재산세·종부세·양도세·증여세·상속세" />
+  <meta property="og:description" content="살 때·가질 때·팔 때·물려줄 때 내는 부동산 세금 6종 무료 계산기. 2026 최신 세율, 무가입, 무서버." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://tax-receipt.kr/" />
   <meta property="og:site_name" content="세금영수증" />
@@ -20,7 +20,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="assets/style.css" />
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"세금영수증","alternateName":"부동산 세금 계산기","url":"https://tax-receipt.kr/","description":"취득세·재산세·양도세·증여세·상속세 무료 계산기","inLanguage":"ko"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"세금영수증","alternateName":"부동산 세금 계산기","url":"https://tax-receipt.kr/","description":"취득세·재산세·종합부동산세·양도세·증여세·상속세 무료 계산기","inLanguage":"ko"}</script>
 </head>
 <body>
   <div class="wrap">
@@ -30,6 +30,7 @@
       <a href="chwideuk.html">취득세</a>
       <a href="yangdo.html">양도세</a>
       <a href="jaesan.html">재산세</a>
+      <a href="jongbuse.html">종부세</a>
       <a href="jeungyeo.html">증여세</a>
       <a href="sangsok.html">상속세</a>
       <a href="tips.html">세금꿀팁</a>
@@ -53,6 +54,10 @@
           <span class="cc-title">재산세 계산기 — 가질&nbsp;때</span>
           <span class="cc-desc">공시가격 하나로 1주택 특례세율 · 도시지역분 · 지방교육세 · 7월/9월 납부액까지</span>
         </a>
+        <a class="calc-card" href="jongbuse.html">
+          <span class="cc-title">종합부동산세 계산기 — 가질&nbsp;때</span>
+          <span class="cc-desc">공시가 12억/9억 공제 · 공정시장가액비율 60% · 중과세율 · 재산세 공제 · 고령자·장기보유 세액공제</span>
+        </a>
         <a class="calc-card" href="yangdo.html">
           <span class="cc-title">양도소득세 계산기 — 팔&nbsp;때</span>
           <span class="cc-desc">1세대1주택 비과세(12억) · 장기보유특별공제(최대 80%) · 다주택 중과(2026.5.10~)</span>
@@ -71,7 +76,7 @@
       <div class="r-meta">기준 2026년 · 위택스·국세청 공식 사례와 대조 검증한 엔진</div>
     </section>
 
-    <div class="adslot">광 고 영 역 · AD</div>
+    <!-- AD SLOT -->
 
     <article class="content">
       <h2>부동산 세금, 시점은 네 번입니다</h2>
@@ -90,13 +95,6 @@
         <li><b>상속이 걱정</b>이라면 — <a href="tips/sangsok-gongje.html">배우자 있으면 10억, 없으면 5억</a> 기준부터 확인하고 <a href="sangsok.html">상속세 계산기</a>로 공제 내역을 살펴보세요.</li>
       </ul>
 
-      <h2>이 사이트가 다른 점</h2>
-      <ul>
-        <li><b>근거를 보여줍니다</b> — 모든 결과에 적용 세율·감면·법조문 출처를 함께 표시합니다.</li>
-        <li><b>검증했습니다</b> — 위택스 미리계산, 국세청 공식 계산사례와 단계별로 대조한 엔진입니다.</li>
-        <li><b>아무것도 수집하지 않습니다</b> — 입력값은 브라우저 안에서만 계산되고 서버로 전송되지 않습니다.</li>
-      </ul>
-
       <h2>최신 세금 꿀팁</h2>
       <p>
         <a href="tips/jaesan-savings.html">재산세 줄이는 법 — 6월 1일 잔금일의 마법</a> ·
@@ -105,7 +103,7 @@
       </p>
     </article>
 
-    <div class="adslot">광 고 영 역 · AD (하단)</div>
+    <!-- AD SLOT (하단) -->
 
     <footer>
       <span class="receipt-footer">THANK YOU ☺ 입력값은 서버로 전송되지 않으며 브라우저에서만 계산됩니다.</span><br />

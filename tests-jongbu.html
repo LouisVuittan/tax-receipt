@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="robots" content="noindex" />
+  <title>종합부동산세 엔진 골든 테스트</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 980px; margin: 24px auto; padding: 0 16px; }
+    h1 { font-size: 20px; }
+    table { border-collapse: collapse; width: 100%; font-size: 14px; }
+    th, td { border: 1px solid #ddd; padding: 6px 8px; text-align: right; }
+    th:first-child, td:first-child { text-align: left; }
+    .pass { color: #0a7d28; font-weight: 700; }
+    .fail { color: #c01818; font-weight: 700; }
+    #summary { font-size: 18px; margin: 12px 0; }
+    .note { color: #666; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <h1>주택분 종합부동산세 계산 엔진 — 골든 테스트</h1>
+  <p class="note">
+    ⚠️ 이 테스트는 <b>엔진이 정의된 규칙대로 일관되게 계산하는지</b>를 잠근다.
+    기대값은 종부세법 제8·9조 세율·공제표와 시행령 제5조의3 재산세 공제 공식으로 수계산함.
+  </p>
+  <div id="summary">실행 중…</div>
+  <table id="results">
+    <thead>
+      <tr><th>시나리오</th><th>항목</th><th>기대</th><th>실제</th><th>판정</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script src="js/rules-jongbu-2026.js"></script>
+  <script src="js/jongbu-tax.js"></script>
+  <script>
+    var cases = [
+      // 과세표준=(공시-공제)×60% / 세율표 / 재산세공제=과표×60%×0.4% / 농특세=종부세×20%
+      { name: 'A. 1주택 공시 15억 · 공제없음 (일반세율 0.5%)',
+        input: { price: 1500000000, houseCount: 1, isOneHouse: true, age: 0, holdYears: 0 },
+        expect: { taxable: 180000000, beforeCredit: 900000, propertyTaxCredit: 432000, afterPropertyTax: 468000, jongbuTax: 468000, ruralTax: 93600, total: 561600 } },
+
+      { name: 'B. 1주택 공시 20억 · 공제없음 (3~6억 구간 0.7%)',
+        input: { price: 2000000000, houseCount: 1, isOneHouse: true, age: 0, holdYears: 0 },
+        expect: { taxable: 480000000, beforeCredit: 2760000, propertyTaxCredit: 1152000, afterPropertyTax: 1608000, jongbuTax: 1608000, ruralTax: 321600, total: 1929600 } },
+
+      { name: 'C. 1주택 공시 20억 · 70세·15년보유 (세액공제 80% 한도)',
+        input: { price: 2000000000, houseCount: 1, isOneHouse: true, age: 70, holdYears: 15 },
+        expect: { taxable: 480000000, afterPropertyTax: 1608000, creditRate: 0.8, creditAmount: 1286400, jongbuTax: 321600, ruralTax: 64320, total: 385920 } },
+
+      { name: 'D. 1주택 공시 10억 · 공제 12억 이하 → 비과세(0원)',
+        input: { price: 1000000000, houseCount: 1, isOneHouse: true, age: 0, holdYears: 0 },
+        expect: { taxable: 0, beforeCredit: 0, total: 0 } },
+
+      { name: 'E. 2주택(다주택) 공시 15억 · 공제 9억 (일반세율)',
+        input: { price: 1500000000, houseCount: 2, isOneHouse: false, age: 0, holdYears: 0 },
+        expect: { deduction: 900000000, taxable: 360000000, beforeCredit: 1920000, propertyTaxCredit: 864000, afterPropertyTax: 1056000, jongbuTax: 1056000, ruralTax: 211200, total: 1267200 } },
+
+      { name: 'F. 3주택 이상 공시 30억 · 공제 9억 (중과세율 2.0%)',
+        input: { price: 3000000000, houseCount: 3, isOneHouse: false, age: 0, holdYears: 0 },
+        expect: { taxable: 1260000000, beforeCredit: 10800000, propertyTaxCredit: 3024000, afterPropertyTax: 7776000, jongbuTax: 7776000, ruralTax: 1555200, total: 9331200 } },
+    ];
+
+    var tbody = document.querySelector('#results tbody');
+    var pass = 0, fail = 0;
+
+    cases.forEach(function (c) {
+      var r = window.Jongbu.calcJongbuTax(c.input);
+      var fields = Object.keys(c.expect);
+      fields.forEach(function (f, i) {
+        var exp = c.expect[f];
+        var act = r.ok ? r[f] : 'ERR';
+        var ok = act === exp;
+        ok ? pass++ : fail++;
+        var tr = document.createElement('tr');
+        tr.innerHTML =
+          '<td>' + (i === 0 ? c.name : '') + '</td>' +
+          '<td>' + f + '</td>' +
+          '<td>' + exp.toLocaleString() + '</td>' +
+          '<td>' + (typeof act === 'number' ? act.toLocaleString() : act) + '</td>' +
+          '<td class="' + (ok ? 'pass' : 'fail') + '">' + (ok ? 'PASS' : 'FAIL') + '</td>';
+        tbody.appendChild(tr);
+      });
+    });
+
+    var s = document.getElementById('summary');
+    s.textContent = '결과: ' + pass + ' PASS / ' + fail + ' FAIL';
+    s.className = fail === 0 ? 'pass' : 'fail';
+  </script>
+</body>
+</html>
